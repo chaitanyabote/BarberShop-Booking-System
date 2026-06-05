@@ -1,0 +1,45 @@
+﻿@model BarberShopMVC_2.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details (Admin)";
+}
+
+<h2>Order Details (Admin)</h2>
+
+<p><strong>Order ID:</strong> @Model.OrderId</p>
+
+<p>
+    <strong>User Email:</strong>
+    @(Model.User != null ? Model.User.Email : "N/A")
+</p>
+
+<p>
+    <strong>Order Date:</strong>
+    @Model.OrderDate.ToString("dd-MMM-yyyy HH:mm")
+</p>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems ?? Enumerable.Empty<BarberShopMVC_2.Models.OrderItem>())
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>₹ @item.Price</td>
+                <td>@item.Quantity</td>
+                <td>₹ @(item.Price* item.Quantity)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="text-end mt-3">
+    Grand Total: ₹ @Model.TotalAmount
+</h4>

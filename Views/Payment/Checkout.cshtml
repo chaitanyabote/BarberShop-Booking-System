@@ -1,0 +1,303 @@
+﻿@model BarberShopMVC_2.Models.PaymentViewModel
+
+@{
+    ViewData["Title"] = "Secure Checkout";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .gateway-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: flex;
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        /* Left Side: Order Summary */
+        .order-summary {
+            background: #0f172a;
+            color: white;
+            width: 35%;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .order-summary h3 {
+                margin-top: 0;
+                font-weight: 600;
+                color: #cbd5e1;
+                font-size: 1rem;
+            }
+
+        .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: #38bdf8;
+        }
+
+        .details {
+            margin-top: auto;
+        }
+
+            .details p {
+                margin: 0.5rem 0;
+                color: #94a3b8;
+                font-size: 0.9rem;
+            }
+
+        /* Right Side: Payment Methods */
+        .payment-methods {
+            width: 65%;
+            padding: 2.5rem;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #64748b;
+            font-family: inherit;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+        }
+
+            .tab-btn.active {
+                color: #0f172a;
+                border-bottom-color: #3b82f6;
+            }
+
+        .tab-content {
+            display: none;
+            flex-grow: 1;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        /* QR Code Styles */
+        .qr-container {
+            text-align: center;
+        }
+
+        .qr-box {
+            border: 2px dashed #cbd5e1;
+            padding: 1.5rem;
+            border-radius: 16px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+            .qr-box img {
+                width: 200px;
+                height: 200px;
+            }
+
+        /* Netbanking Styles */
+        .bank-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .bank-option {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .bank-option:hover {
+                border-color: #3b82f6;
+                background: #eff6ff;
+            }
+
+        /* Pay Button */
+        .btn-pay {
+            background: #3b82f6;
+            color: white;
+            width: 100%;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .btn-pay:hover {
+                background: #2563eb;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="gateway-container">
+        <div class="order-summary">
+            <h3>Secure Payment Gateway</h3>
+            <div class="amount">₹@Model.Amount</div>
+            <p>Module: <strong>@Model.Module</strong></p>
+
+            <div class="details">
+                <p><i class="bi bi-person"></i> @Model.CustomerName</p>
+                <p><i class="bi bi-envelope"></i> @Model.CustomerEmail</p>
+                <p><i class="bi bi-shield-check text-success"></i> SSL Encrypted</p>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+
+            <div class="tabs">
+                <button type="button" class="tab-btn active" data-tab="upi">UPI / QR Code</button>
+                <button type="button" class="tab-btn" data-tab="netbanking">Netbanking</button>
+                <button type="button" class="tab-btn" data-tab="card">Credit/Debit</button>
+            </div>
+
+            <form asp-action="ProcessPayment" asp-controller="Payment" method="post" id="paymentForm">
+                <input type="hidden" name="ReferenceId" value="@Model.ReferenceId" />
+                <input type="hidden" name="Module" value="@Model.Module" />
+
+                <input type="hidden" name="shopSlug" value="@ViewBag.ShopSlug" />
+
+                <div id="upi" class="tab-content active">
+                    <div class="qr-container">
+                        <div class="qr-box">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=merchant@upi&pn=SmartPlatform&am=@Model.Amount" alt="UPI QR Code">
+                        </div>
+                        <p class="text-muted fw-bold mb-1">Scan with GPay, PhonePe, or Paytm</p>
+                        <small style="color: #94a3b8;">Or enter UPI ID below</small>
+                        <input type="text" placeholder="example@upi" class="form-control mt-2" style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px;" />
+                    </div>
+                </div>
+
+                <div id="netbanking" class="tab-content">
+                    <p style="font-weight: 600; margin-bottom: 1rem;">Popular Banks</p>
+                    <div class="bank-grid">
+                        <label class="bank-option">
+                            <input type="radio" name="bank" value="HDFC"> HDFC Bank
+                        </label>
+                        <label class="bank-option">
+                            <input type="radio" name="bank" value="SBI"> State Bank of India
+                        </label>
+                        <label class="bank-option">
+                            <input type="radio" name="bank" value="ICICI"> ICICI Bank
+                        </label>
+                        <label class="bank-option">
+                            <input type="radio" name="bank" value="Axis"> Axis Bank
+                        </label>
+                    </div>
+                </div>
+
+                <div id="card" class="tab-content">
+                    <input type="text" placeholder="Card Number" class="form-control mb-3" style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px;" />
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" placeholder="MM/YY" class="form-control" style="width: 50%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px;" />
+                        <input type="text" placeholder="CVV" class="form-control" style="width: 50%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px;" />
+                    </div>
+                </div>
+
+                <button type="button" class="btn-pay" id="payBtn">
+                    <span id="btnText">Pay ₹@Model.Amount Securely</span>
+                    <div class="spinner-border spinner-border-sm ms-2 text-light" role="status" id="spinner" style="display: none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.css"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // 1. Handle Tab Switching
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    this.classList.add('active');
+                    const targetTab = this.getAttribute('data-tab');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // 2. Handle Payment Processing Animation
+            const payButton = document.getElementById('payBtn');
+            const paymentForm = document.getElementById('paymentForm');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+
+            if (payButton && paymentForm) {
+                payButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Update Button UI to processing state
+                    this.style.background = "#94a3b8";
+                    this.style.cursor = "not-allowed";
+                    btnText.innerText = "Processing...";
+                    spinner.style.display = "inline-block";
+
+                    // Submit form after a 1.5-second delay
+                    setTimeout(() => {
+                        paymentForm.submit();
+                    }, 1500);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+﻿@model IEnumerable<BarberShopMVC_2.Models.Shop>
+
+@{
+    ViewData["Title"] = "Find a Shop";
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5">Where would you like to go?</h1>
+        <p class="text-muted fs-5">Browse our premium barber shops and medical clinics.</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var shop in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-shadow transition">
+                    <div class="bg-dark p-4 text-center">
+                        <i class="bi bi-shop text-white display-4"></i>
+                    </div>
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-1">@shop.ShopName</h4>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @(shop.Address ?? "Multiple Locations")
+                        </p>
+
+                        <div class="d-grid">
+                            <a href="/@shop.UniqueUrlSlug/Home/Index" class="btn btn-primary rounded-pill fw-bold py-2">
+                                Visit Shop <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+        transition: all 0.3s ease;
+    }
+</style>

@@ -1,0 +1,79 @@
+﻿@using BarberShopMVC_2.Models
+
+@{
+    ViewData["Title"] = "Rate Barber";
+    var barber = ViewBag.Barber as Barber;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Rate Barber</h4>
+                </div>
+
+                <div class="card-body">
+
+                    @if (barber != null)
+                    {
+                        <h5 class="mb-3">
+                            Barber Name: <strong>@barber.Name</strong>
+                        </h5>
+
+                        <form asp-action="Rate" method="post">
+
+                            <!-- Barber Id -->
+                            <input type="hidden" name="barberId" value="@barber.BarberId" />
+
+                            <!-- Star Rating -->
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="stars" class="form-select" required>
+                                    <option value="">-- Select Rating --</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                                    <option value="4">⭐⭐⭐⭐ (Very Good)</option>
+                                    <option value="3">⭐⭐⭐ (Good)</option>
+                                    <option value="2">⭐⭐ (Average)</option>
+                                    <option value="1">⭐ (Poor)</option>
+                                </select>
+                            </div>
+
+                            <!-- Comment -->
+                            <div class="mb-3">
+                                <label class="form-label">Comment (optional)</label>
+                                <textarea name="comment"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Write your feedback..."></textarea>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-success">
+                                    Submit Rating
+                                </button>
+
+                                <a asp-controller="Rating"
+                                   asp-action="Index"
+                                   class="btn btn-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            Barber not found.
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

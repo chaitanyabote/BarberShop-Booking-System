@@ -1,0 +1,44 @@
+﻿@model IEnumerable<BarberShopMVC_2.Models.Dermatologist>
+
+@{
+    ViewData["Title"] = $"Dermatologists at {ViewBag.ShopName}";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">Skin & Hair Experts at <span class="text-primary">@ViewBag.ShopName</span></h2>
+        <p class="text-muted">Consult with our in-house specialized dermatologists for professional care.</p>
+    </div>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var doc in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; overflow: hidden;">
+                        <img src="@doc.ImageUrl" class="card-img-top" alt="@doc.Name" style="height: 250px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=@doc.Name&background=0d6efd&color=fff&size=250'" />
+                        <div class="card-body text-center p-4">
+                            <h5 class="fw-bold mb-1">@doc.Name</h5>
+                            <p class="text-primary fw-semibold mb-2">@doc.Specialization</p>
+                            <div class="d-flex justify-content-center align-items-center mb-3 text-muted">
+                                <i class="bi bi-award me-2"></i> @doc.Experience Years Experience
+                            </div>
+
+                            <a asp-controller="DBooking" asp-action="Book" asp-route-doctorId="@doc.DermatologistId" asp-route-shopSlug="@ViewBag.ShopSlug" class="btn btn-outline-primary rounded-pill w-100 fw-bold">
+                                Book Consultation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-emoji-frown fs-1 text-muted mb-3 d-block"></i>
+                <h4 class="text-muted">No specialists available at @ViewBag.ShopName right now.</h4>
+            </div>
+        }
+    </div>
+</div>

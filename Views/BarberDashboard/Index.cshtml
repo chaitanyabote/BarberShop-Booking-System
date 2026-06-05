@@ -1,0 +1,86 @@
+﻿@model IEnumerable<BarberShopMVC_2.Models.Booking>
+
+@{
+    ViewData["Title"] = "Barber POS Dashboard";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Welcome back, @ViewBag.BarberName! ✂️</h2>
+            <p class="text-muted mt-1 mb-0">Here is your schedule for today (@DateTime.Today.ToString("MMM dd, yyyy"))</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-primary px-4 py-2 rounded-pill shadow-sm fs-6">
+                @(Model?.Count() ?? 0) Appointments Today
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var booking in Model)
+            {
+                // This cleanly handles the grayed-out effect without triggering Visual Studio syntax warnings
+                var cardClass = booking.Status == "Completed" ? "bg-light opacity-75" : "bg-white";
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 @cardClass">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-dark rounded-pill px-3 py-2 fw-bold fs-6">
+                                    <i class="bi bi-clock me-1"></i> @booking.TimeSlot
+                                </span>
+
+                                @if (booking.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1">Confirmed</span>
+                                }
+                                else if (booking.Status == "Completed")
+                                {
+                                    <span class="badge bg-secondary rounded-pill px-3 py-1">Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1">@booking.Status</span>
+                                }
+                            </div>
+
+                            <h4 class="fw-bold mb-1">@(booking.User?.Name ?? "Guest Client")</h4>
+                            <p class="text-muted small mb-3"><i class="bi bi-envelope me-1"></i> @(booking.User?.Email ?? "No email provided")</p>
+
+                            <hr class="text-muted opacity-25 my-3" />
+
+                            @if (booking.Status != "Completed")
+                            {
+                                <form asp-action="CompleteAppointment" asp-controller="BarberDashboard" method="post">
+                                    <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                    <button type="submit" class="btn btn-outline-success w-100 fw-bold rounded-pill py-2 shadow-sm">
+                                        <i class="bi bi-check2-circle me-1"></i> Mark as Completed
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary w-100 fw-bold rounded-pill py-2" disabled>
+                                    <i class="bi bi-check-all me-1"></i> Service Finished
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 bg-light text-center py-5">
+                    <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block opacity-50"></i>
+                    <h4 class="text-muted">Your schedule is clear for today.</h4>
+                    <p class="text-muted small">Enjoy your break or check back later for walk-ins!</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

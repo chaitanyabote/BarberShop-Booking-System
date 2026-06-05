@@ -1,0 +1,38 @@
+﻿@model List<BarberShopMVC_2.Models.Booking>
+
+<h2 class="text-center mt-4">All Bookings</h2>
+
+<table class="table table-bordered mt-4">
+
+    <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Service</th>
+        <th>Barber</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Action</th>
+    </tr>
+
+    @foreach (var b in Model)
+    {
+        <tr>
+
+            <td>@b.BookingId</td>
+            <td>@b.UserId</td>
+            <td>@b.ServiceId</td>
+            <td>@b.BarberId</td>
+            <td>@b.BookingDate.ToShortDateString()</td>
+            <td>@b.TimeSlot</td>
+
+            <td>
+                <a href="/Admin/DeleteBooking/@b.BookingId"
+                   class="btn btn-danger">
+                    Delete
+                </a>
+            </td>
+
+        </tr>
+    }
+
+</table>

@@ -1,0 +1,28 @@
+﻿@model BarberShopMVC_2.Models.Order
+
+<h2>Order Details</h2>
+
+<p><strong>Order ID:</strong> @Model.OrderId</p>
+<p><strong>Date:</strong> @Model.OrderDate</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems ?? Enumerable.Empty<BarberShopMVC_2.Models.OrderItem>())
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Quantity</td>
+                <td>₹@item.Price</td>
+            </tr>
+        }
+
+    </tbody>
+</table>

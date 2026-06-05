@@ -1,0 +1,104 @@
+﻿@model BarberShopMVC_2.Models.Shop
+
+@{
+    ViewData["Title"] = "Shop Dashboard";
+    // Construct the live booking link for the owner to copy
+    var bookingLink = $"{Context.Request.Scheme}://{Context.Request.Host}/{Model.UniqueUrlSlug}/Home/Index";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">@Model.ShopName Dashboard</h2>
+            <p class="text-muted mt-1"><i class="bi bi-geo-alt-fill text-danger"></i> @Model.Address</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">Active SaaS Tenant</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold"><i class="bi bi-link-45deg text-primary"></i> Your Custom Link</h5>
+                    <p class="text-muted small mb-2">Share this exact link with your customers so they can book with your shop directly!</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control bg-light text-primary fw-bold" value="@bookingLink" readonly id="shopLink">
+                        <button class="btn btn-outline-primary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('shopLink').value); alert('Link Copied!');">Copy</button>
+                    </div>
+                    <a href="@bookingLink" target="_blank" class="btn btn-dark w-100 fw-bold rounded-pill">View Live Shop</a>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-plus-fill text-primary"></i> Hire New Staff</h5>
+                    <form asp-action="AddBarber" method="post">
+                        <div class="mb-2">
+                            <input type="text" name="name" class="form-control bg-light border-0" placeholder="Barber's Full Name" required />
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" name="specialization" class="form-control bg-light border-0" placeholder="e.g. Fade Specialist" required />
+                        </div>
+                        <hr class="text-muted opacity-25 my-3" />
+                        <small class="text-muted d-block mb-2">Create their login details:</small>
+                        <div class="mb-2">
+                            <input type="email" name="email" class="form-control bg-light border-0" placeholder="Login Email" required />
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" name="password" class="form-control bg-light border-0" placeholder="Temporary Password" required />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 fw-bold rounded-pill">Add Barber to Team</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-people-fill text-primary"></i> Your Current Team</h5>
+
+                    @if (Model.Barbers != null && Model.Barbers.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Staff Member</th>
+                                        <th>Specialty</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var barber in Model.Barbers)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="@barber.ImageUrl" class="rounded-circle me-3" width="40" height="40" alt="@barber.Name">
+                                                    <span class="fw-bold">@barber.Name</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-muted">@barber.Specialization</td>
+                                            <td><span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">Active</span></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-person-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
+                            <h5 class="text-muted">You haven't added any barbers yet.</h5>
+                            <p class="text-muted small">Use the form on the left to hire your first staff member!</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

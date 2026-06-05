@@ -1,0 +1,113 @@
+﻿@model BarberShopMVC_2.Models.DBooking
+
+@{
+    ViewData["Title"] = $"Consultation with {ViewBag.Doctor?.Name}";
+    var slug = ViewBag.ShopSlug; // This is the key to fixing the error
+}
+
+<div class="container mt-5 mb-5" style="max-width: 800px;">
+
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark">Book Your Consultation</h2>
+        <p class="text-muted">Secure your appointment at <span class="fw-bold text-primary">@ViewBag.ShopName</span></p>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+
+        <div class="bg-primary bg-opacity-10 p-4 d-flex align-items-center">
+            <img src="@ViewBag.Doctor?.ImageUrl" class="rounded-circle border border-3 border-white shadow-sm me-4" style="width: 80px; height: 80px; object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=@ViewBag.Doctor?.Name&background=0d6efd&color=fff&size=150'" />
+            <div>
+                <h4 class="fw-bold mb-1">@ViewBag.Doctor?.Name</h4>
+                <p class="text-primary fw-semibold mb-0">@ViewBag.Doctor?.Specialization</p>
+                <small class="text-muted"><i class="bi bi-clock me-1"></i> Standard Consultation: ₹1000</small>
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            <form asp-action="Book" asp-route-shopSlug="@slug" method="post">
+                <input type="hidden" asp-for="DermatologistId" value="@ViewBag.Doctor?.DermatologistId" id="doctorIdInput" />
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]</div>
+                }
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="fw-bold mb-2">Select Date</label>
+                        <input type="date" class="form-control form-control-lg bg-light border-0" asp-for="BookingDate" id="dateInput" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="fw-bold mb-2">Select Time</label>
+                        <div class="d-flex gap-2 flex-wrap" id="timeSlotContainer">
+                            @{
+                                var slots = new List<string> { "09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM", "04:30 PM", "06:00 PM" };
+                                foreach (var slot in slots)
+                                {
+                                    var slotId = "slot_" + slot.Replace(" ", "").Replace(":", "");
+                                    <input type="radio" asp-for="TimeSlot" value="@slot" id="@slotId" class="btn-check time-slot-radio" required disabled />
+                                    <label for="@slotId" class="btn btn-outline-primary fw-semibold px-3 py-2 rounded-pill time-slot-label opacity-50">@slot</label>
+                                }
+                            }
+                        </div>
+                        <small id="slotWarning" class="text-primary mt-2 d-block"><i class="bi bi-info-circle"></i> Please select a date to view availability.</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-4 rounded-3 border-0 bg-warning bg-opacity-10 d-flex align-items-center">
+                    <i class="bi bi-shield-lock fs-4 text-warning me-3"></i>
+                    <div>
+                        <strong>20% Advance Required:</strong> A ₹200 secure deposit is required to confirm your booking.
+                    </div>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button type="submit" class="btn btn-success rounded-pill px-5 py-3 fw-bold shadow-sm" id="confirmBtn">
+                        <i class="bi bi-credit-card me-2"></i> Proceed to Secure Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("dateInput").addEventListener("change", function() {
+        let selectedDate = this.value;
+        let doctorId = document.getElementById("doctorIdInput").value;
+        let slotWarning = document.getElementById("slotWarning");
+        let shopSlug = '@slug'; // 🎯 FIX: Inject the shop slug into JS
+
+        slotWarning.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Checking...';
+
+        document.querySelectorAll('.time-slot-radio').forEach(radio => {
+            radio.disabled = true;
+            document.querySelector(`label[for="${radio.id}"]`).classList.add('opacity-50');
+        });
+
+        // 🎯 FIX: Updated URL to include /shop-slug/
+        fetch(`/${shopSlug}/DBooking/GetBookedSlots?doctorId=${doctorId}&date=${selectedDate}`)
+            .then(response => response.json())
+            .then(bookedSlots => {
+                document.querySelectorAll('.time-slot-radio').forEach(radio => {
+                    radio.disabled = false;
+                    radio.checked = false;
+                    let label = document.querySelector(`label[for="${radio.id}"]`);
+                    label.classList.remove('btn-outline-secondary', 'text-decoration-line-through', 'opacity-50');
+                    label.classList.add('btn-outline-primary');
+
+                    if (bookedSlots.includes(radio.value)) {
+                        radio.disabled = true;
+                        label.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+                        label.classList.add('text-decoration-line-through', 'opacity-50');
+                    }
+                });
+                slotWarning.innerHTML = '<i class="bi bi-check-circle me-1"></i> Slots available!';
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                slotWarning.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Error loading schedule.';
+            });
+    });
+</script>

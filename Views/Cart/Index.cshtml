@@ -1,0 +1,76 @@
+﻿@model List<BarberShopMVC_2.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Your Cart";
+}
+
+<h2>Your Cart</h2>
+
+@if (!Model.Any())
+{
+    <p>Your cart is empty 🛒</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>₹@item.Price</td>
+                    <td class="text-center">
+
+                        <form asp-action="Decrease" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@item.ProductId" />
+                            <button class="btn btn-sm btn-outline-danger">−</button>
+                        </form>
+
+                        <span class="mx-2 fw-bold">@item.Quantity</span>
+
+                        <form asp-action="Increase" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@item.ProductId" />
+                            <button class="btn btn-sm btn-outline-success">+</button>
+                        </form>
+
+                    </td>
+                    <td>₹@(item.Price* item.Quantity)</td>
+                    <td class="text-center">
+                        <form asp-action="Remove" method="post">
+                            <input type="hidden" name="id" value="@item.ProductId" />
+                            <button class="btn btn-sm btn-outline-dark">❌</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+
+        
+
+    <h4 class="text-end">
+        Grand Total: ₹@Model.Sum(x => x.Price * x.Quantity)
+    </h4>
+
+    <div class="text-end mt-3">
+        <a asp-controller="Cart"
+           asp-action="Checkout"
+           class="btn btn-success">
+            Proceed to Checkout
+        </a>
+    </div>
+
+}
+

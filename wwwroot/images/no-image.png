@@ -1,0 +1,6 @@
+﻿namespace BarberShopMVC_2.wwwroot.images
+{
+    public class no_image
+    {
+    }
+}

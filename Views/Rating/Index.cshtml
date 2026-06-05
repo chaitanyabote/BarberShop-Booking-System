@@ -1,0 +1,41 @@
+﻿@model IEnumerable<dynamic>
+
+<h2 class="mb-4">Our Barbers</h2>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        var barber = item.Barber;
+        var avg = Math.Round(item.AvgRating, 1);
+        var count = item.TotalRatings;
+
+        <div class="col-md-4 mb-4">
+            <div class="card p-3 shadow-sm">
+
+                <h5>@barber.Name</h5>
+
+                <div>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Math.Round(avg))
+                        {
+                            <span style="color:gold;font-size:18px;">★</span>
+                        }
+                        else
+                        {
+                            <span style="color:#ccc;font-size:18px;">★</span>
+                        }
+                    }
+                    <small class="text-muted">
+                        (@avg / 5 · @count reviews)
+                    </small>
+                </div>
+
+                <a class="btn btn-sm btn-outline-primary mt-2"
+                   href="/Rating/Rate?barberId=@barber.BarberId">
+                    Rate this barber
+                </a>
+            </div>
+        </div>
+    }
+</div>

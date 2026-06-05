@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Register Your Barber Shop";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5 mb-5" style="max-width: 600px;">
+    <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+        <div class="bg-dark text-white p-4 text-center">
+            <h2 class="fw-bold mb-0">Launch Your Shop</h2>
+            <p class="text-white-50 mb-0 mt-1">Get your custom SaaS booking URL in seconds.</p>
+        </div>
+
+        <div class="card-body p-5">
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger rounded-3"><i class="bi bi-exclamation-triangle me-2"></i> @ViewBag.Error</div>
+            }
+
+            <form asp-action="Register" method="post">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-shop me-2"></i> Shop Details</h5>
+                <div class="mb-3">
+                    <label class="fw-bold mb-1">Shop Name</label>
+                    <input type="text" name="shopName" class="form-control form-control-lg bg-light border-0" required placeholder="e.g. The Golden Razor" />
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold mb-1">Shop Address</label>
+                    <input type="text" name="address" class="form-control bg-light border-0" required placeholder="Full street address" />
+                </div>
+                <div class="mb-4">
+                    <label class="fw-bold mb-1">Shop Phone</label>
+                    <input type="text" name="phone" class="form-control bg-light border-0" required placeholder="Contact number" />
+                </div>
+
+                <hr class="text-muted opacity-25 my-4" />
+
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-person-badge me-2"></i> Owner Account</h5>
+                <div class="mb-3">
+                    <label class="fw-bold mb-1">Your Full Name</label>
+                    <input type="text" name="ownerName" class="form-control bg-light border-0" required />
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold mb-1">Email Address</label>
+                    <input type="email" name="email" class="form-control bg-light border-0" required />
+                </div>
+                <div class="mb-4">
+                    <label class="fw-bold mb-1">Password</label>
+                    <input type="password" name="password" class="form-control bg-light border-0" required />
+                </div>
+
+                <button type="submit" class="btn btn-dark btn-lg w-100 fw-bold rounded-pill shadow-sm mt-2">
+                    Create Shop & Launch <i class="bi bi-rocket-takeoff ms-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

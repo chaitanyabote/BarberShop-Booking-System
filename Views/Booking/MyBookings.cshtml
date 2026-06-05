@@ -1,0 +1,149 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="container mt-5 mb-5" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">My Booking History</h2>
+            <p class="text-muted mb-0">Manage your past and upcoming barber appointments.</p>
+        </div>
+        <a href="/Booking/Book" class="btn btn-primary rounded-pill px-4 fw-bold"><i class="bi bi-plus-lg me-2"></i> New Booking</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border border-light">
+            <i class="bi bi-calendar-x display-1 text-muted opacity-50 mb-3 d-block"></i>
+            <h4 class="fw-bold">No Bookings Found</h4>
+            <p class="text-muted">You haven't scheduled any grooming sessions yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var booking in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px; transition: 0.3s;">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <span class="text-uppercase fw-bold text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">Service</span>
+                                    <h5 class="fw-bold text-dark mb-0">@booking.ServiceName</h5>
+                                </div>
+                                @if (booking.Status == "Pending Payment")
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i> Pending</span>
+                                }
+                                else if (booking.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i> Cancelled</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i> Confirmed</span>
+                                }
+                            </div>
+
+                            <hr class="text-muted opacity-25" />
+
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-person text-primary fs-5"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 text-muted small">Barber</p>
+                                    <p class="mb-0 fw-semibold text-dark">@booking.BarberName</p>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-calendar-event text-primary fs-5"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 text-muted small">Schedule</p>
+                                    <p class="mb-0 fw-semibold text-dark">@booking.Date.ToString("dd MMM yyyy") at @booking.Time</p>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto">
+                                <div class="bg-light p-3 rounded-3 d-flex justify-content-between align-items-center mt-3">
+                                    <span class="text-muted small fw-semibold">Advance Paid</span>
+                                    <span class="fw-bold text-success">₹@booking.AdvancePaid.ToString("0.00")</span>
+                                </div>
+
+                                @if (booking.Status == "Confirmed" && booking.Date >= DateTime.Today)
+                                {
+                                    <form asp-action="CancelBooking" method="post" class="mt-3 cancel-form">
+                                        <input type="hidden" name="bookingId" value="@booking.BookingId" />
+                                        <button type="button"
+                                                class="btn btn-outline-danger w-100 rounded-pill fw-bold btn-cancel"
+                                                data-utc-date="@booking.AppointmentDateUtc.ToString("o")">
+                                            <i class="bi bi-x-circle me-1"></i> Cancel Appointment
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-cancel').forEach(button => {
+            button.addEventListener('click', function () {
+                const form = this.closest('.cancel-form');
+
+                // Parse the appointment time (UTC) and the user's current local time
+                const appointmentTime = new Date(this.getAttribute('data-utc-date'));
+                const now = new Date();
+
+                // Calculate hours remaining until the appointment
+                const hoursRemaining = (appointmentTime - now) / (1000 * 60 * 60);
+
+                let popupTitle = 'Cancel Appointment?';
+                let popupText = 'Your advance payment will be fully refunded.';
+                let confirmBtnColor = '#d33';
+
+                // Check if it's within the strict 2-hour window
+                if (hoursRemaining > 0 && hoursRemaining < 2) {
+                    popupTitle = 'Late Cancellation Warning';
+                    popupText = 'You are cancelling within 2 hours of your slot. Per our policy, your advance payment will NOT be refunded. Do you still want to free up this slot?';
+                    confirmBtnColor = '#0f172a'; // Darker color to make them pause and read
+                } else if (hoursRemaining <= 0) {
+                    popupTitle = 'Appointment Passed';
+                    popupText = 'This appointment time has already passed. Advance is non-refundable.';
+                    confirmBtnColor = '#0f172a';
+                }
+
+                // Show the SweetAlert Modal
+                Swal.fire({
+                    title: popupTitle,
+                    text: popupText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: confirmBtnColor,
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Yes, cancel it',
+                    cancelButtonText: 'Keep Appointment',
+                    customClass: {
+                        popup: 'rounded-4'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); // Submit the form to the C# backend if they agree
+                    }
+                });
+            });
+        });
+    </script>
+}

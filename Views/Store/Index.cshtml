@@ -1,0 +1,65 @@
+﻿@model List<BarberShopMVC_2.Models.Product>
+
+@{
+    ViewData["Title"] = "Premium Store";
+}
+
+<div class="container mt-5">
+    <div class="bg-dark text-white rounded-4 p-5 text-center mb-5 shadow-lg">
+        <h1 class="fw-bold">Grooming Marketplace</h1>
+        <p class="lead">Professional products for your daily routine.</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var product in Model)
+        {
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                        <img src="~/images/@product.ImageUrl"
+                             class="img-fluid p-3"
+                             style="max-height: 100%; object-fit: contain;"
+                             onerror="this.src='https://ui-avatars.com/api/?name=Product&size=200'" />
+                    </div>
+                    <div class="card-body p-4 text-center d-flex flex-column">
+                        <h6 class="fw-bold text-dark mb-1">@product.ProductName</h6>
+                        <h5 class="text-primary fw-bold mb-3">₹@product.Price.ToString("N2")</h5>
+
+                        <button class="btn btn-dark w-100 rounded-pill py-2 mt-auto add-to-cart-btn" data-id="@product.ProductId">
+                            <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-5">
+        <a asp-controller="Cart" asp-action="Index" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+            Go to Cart & Checkout <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const productId = this.dataset.id;
+                const btnElement = this;
+                btnElement.disabled = true;
+
+                fetch(`/Store/AddToCart?id=${productId}`, { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    btnElement.disabled = false;
+                    if (data.success) {
+                        const badge = document.querySelector(".badge.bg-danger");
+                        if (badge) badge.innerText = data.count;
+                        Swal.fire({ icon: 'success', title: 'Added to cart!', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                    }
+                });
+            });
+        });
+    </script>
+}   

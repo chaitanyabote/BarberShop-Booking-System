@@ -1,0 +1,44 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Barber Shop</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">💈</div>
+
+        <div class="brand">Create Account</div>
+
+        <form method="post" asp-controller="Account" asp-action="Register">
+
+            <div class="input-group">
+                <input type="text" name="Name" placeholder="Full Name" required />
+            </div>
+
+            <div class="input-group">
+                <input type="email" name="Email" placeholder="Email" required />
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="Password" placeholder="Password" required />
+            </div>
+
+            <button type="submit" class="login-btn">
+                Register
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>
